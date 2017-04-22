@@ -3,7 +3,7 @@ import Phaser from 'phaser-ce';
 import CameraDebugger from './cameradebugger';
 
 const HORIZONTAL_VELOCITY = 150;
-const VERICAL_VELOCITY = 150;
+const VERTICAL_VELOCITY = 200;
 const GRAVITY = 250;
 
 export default class extends Phaser.State {
@@ -64,6 +64,21 @@ export default class extends Phaser.State {
 
         this.box.body.velocity.x = 0;
 
+        this.handleInput();
+
+        if (this.box.body.velocity.x === 0) {
+            this.boxState = 'idle';
+            this.box.animations.stop()
+        }
+
+    }
+
+    render() {
+        this.game.debug.body(this.box);
+        this.game.debug.bodyInfo(this.box, 10, 10);
+    }
+
+    handleInput() {
         if (this.input.keyboard.isDown(Phaser.Keyboard.W)) {
             this.jump();
         }
@@ -78,25 +93,14 @@ export default class extends Phaser.State {
             this.box.animations.play('walk-right');
             this.boxState = 'right';
         }
-
-        if (this.box.body.velocity.x === 0) {
-            this.boxState = 'idle';
-            this.box.animations.stop()
-        }
-
-    }
-
-    render() {
-        this.game.debug.body(this.box);
-        this.game.debug.bodyInfo(this.box, 10, 10);
     }
 
     jump() {
-        if (!this.colliding) {
+        if (!this.box.body.blocked.down) {
             return;
         }
 
-        this.box.body.velocity.y -= 12;
+        this.box.body.velocity.y -= VERTICAL_VELOCITY;
         this.boxState = 'jump';
     }
 
