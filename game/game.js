@@ -9,7 +9,7 @@ import GameOver from './GameOver';
 export default class Game extends Phaser.Game {
 
     constructor(width, height) {
-        super(width, height, Phaser.CANVAS, 'content', null);
+        super(width, height, Phaser.CANVAS, 'game', null);
 
         this.state.add('Loading', Loading, false);
         this.state.add('Splash', Splash, false);
