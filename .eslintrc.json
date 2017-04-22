@@ -1,3 +1,10 @@
 {
-  "extends": "eslint-config-novoda"
+  "extends": "eslint-config-novoda",
+  "env": {
+    "browser": true
+  },
+  "parserOptions": {
+    "ecmaVersion": 6,
+    "sourceType": "module"
+  }
 }
