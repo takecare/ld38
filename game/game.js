@@ -1,0 +1,17 @@
+import Phaser from 'phaser'
+
+export default class Game extends Phaser.Game {
+
+  constructor(width, height) {
+    super(width, height, Phaser.CANVAS, 'content', null)
+
+    this.state.add('Loading', Loading, false);
+    this.state.add('Splash', Splash, false);
+    this.state.add('Menu', Menu, false);
+    this.state.add('Play', Play, false);
+    this.state.add('GameOver', GameOver, false);
+
+    this.state.start('Loading')
+  }
+
+}
