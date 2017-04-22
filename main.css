@@ -1,0 +1,19 @@
+/* TODO css
+    - not hardcode dimens?
+    - set top margin to 0px
+    - remove bg color
+ */
+#game {
+    width: 800px;
+    height: 600px;
+
+    position: absolute;
+    top: -300px;
+    bottom: 0;
+    left: 0;
+    right: 0;
+
+    background: #ccf;
+
+    margin: auto;
+}
