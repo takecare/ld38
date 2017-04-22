@@ -6,6 +6,8 @@ const HORIZONTAL_VELOCITY = 150;
 const VERTICAL_VELOCITY = 200;
 const GRAVITY = 250;
 
+const SCALE_FACTOR = 2;
+
 export default class extends Phaser.State {
 
     constructor() {
@@ -59,7 +61,7 @@ export default class extends Phaser.State {
         this.cameraDebugger.update();
 
         this.game.physics.arcade.collide(this.box, this.layer, (sprite, group) => {
-            this.colliding = true;
+            // maybe useful to find out collision data
         });
 
         this.box.body.velocity.x = 0;
@@ -102,6 +104,20 @@ export default class extends Phaser.State {
 
         this.box.body.velocity.y -= VERTICAL_VELOCITY;
         this.boxState = 'jump';
+    }
+
+    scaleUp() {
+        this.box.width *= SCALE_FACTOR;
+        this.box.height *= SCALE_FACTOR;
+        this.box.body.width *= SCALE_FACTOR;
+        this.box.body.height *= SCALE_FACTOR;
+    }
+
+    scaleDown() {
+        this.box.width /= SCALE_FACTOR;
+        this.box.height /= SCALE_FACTOR;
+        this.box.body.width /= SCALE_FACTOR;
+        this.box.body.height /= SCALE_FACTOR;
     }
 
 }
