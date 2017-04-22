@@ -21,7 +21,7 @@ export default class {
     update() {
         const camera = this.state.game.camera;
 
-        if (!this.state.input.keyboard.isDown(Phaser.Keyboard.D)) {
+        if (!this.state.input.keyboard.isDown(Phaser.Keyboard.M)) {
             camera.follow(this.target, Phaser.Camera.FOLLOW_LOCKON, 0.1, 0.1);
             return;
         }
