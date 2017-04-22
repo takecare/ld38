@@ -6,7 +6,7 @@ const HORIZONTAL_VELOCITY = 150;
 const VERTICAL_VELOCITY = 200;
 const GRAVITY = 250;
 
-const SCALE_FACTOR = 2;
+const BOUNDING_BOX_MARGIN = 6;
 
 export default class extends Phaser.State {
 
@@ -21,7 +21,7 @@ export default class extends Phaser.State {
     }
 
     preload() {
-        // TODO
+        this.data = this.game.cache.getJSON('level1');
     }
 
     create() {
@@ -29,21 +29,29 @@ export default class extends Phaser.State {
         this.cameraDebugger = new CameraDebugger();
         this.cameraDebugger.bindTo(this);
 
-        // TODO
+        this.createLevel();
+        this.createPlayer();
+
+        this.cameraDebugger.follow(this.box);
+    }
+
+    createLevel() {
         this.map = this.game.add.tilemap('map');
         this.map.addTilesetImage('tileset');
         this.map.setCollisionBetween(1, 4); // 1: wall, 2: spikes, 3: coin, 4: exit
 
         this.layer = this.map.createLayer('bounds');
         this.layer.resizeWorld();
+    }
 
+    createPlayer() {
         this.box = this.game.add.sprite(
             this.map.widthInPixels - 100,
             this.map.heightInPixels - 200,
             'box'
         );
         this.box.animations.add('walk-left', [1, 2, 3]);
-        this.box.animations.add('walk-right', [1, 2, 3]); // TODO
+        this.box.animations.add('walk-right', [1, 2, 3]); // TODO walk right sprites
 
         this.box.anchor.set(0.5);
         this.game.physics.startSystem(Phaser.Physics.ARCADE);
@@ -55,7 +63,7 @@ export default class extends Phaser.State {
 
         this.box.body.gravity.y = GRAVITY;
 
-        this.cameraDebugger.follow(this.box);
+        this.scalePlayer(this.data.scale);
     }
 
     update() {
@@ -111,18 +119,10 @@ export default class extends Phaser.State {
         this.boxState = 'jump';
     }
 
-    scaleUp() {
-        this.box.width *= SCALE_FACTOR;
-        this.box.height *= SCALE_FACTOR;
-        this.box.body.width *= SCALE_FACTOR;
-        this.box.body.height *= SCALE_FACTOR;
-    }
-
-    scaleDown() {
-        this.box.width /= SCALE_FACTOR;
-        this.box.height /= SCALE_FACTOR;
-        this.box.body.width /= SCALE_FACTOR;
-        this.box.body.height /= SCALE_FACTOR;
+    scalePlayer(factor) {
+        this.box.scale.set(factor);
+        const safeWidth = this.box.body.width - BOUNDING_BOX_MARGIN;
+        this.box.body.setSize(safeWidth, this.box.body.height, BOUNDING_BOX_MARGIN / 2);
     }
 
 }
