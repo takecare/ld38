@@ -13,20 +13,18 @@ export default class extends Phaser.State {
 
     preload() {
         this.game.load.image('loading', '../assets/loading.png');
-
-        this.game.load.tilemap('map', '../assets/tilemap.json', null, Phaser.Tilemap.TILED_JSON);
+        this.game.load.image('splash', '../assets/splash.png');
         this.game.load.image('tileset', '../assets/tileset.png');
 
         this.game.load.spritesheet('box', '../assets/box.png', 64, 64);
 
-        this.game.load.image('splash', '../assets/splash.png');
+        this.game.load.tilemap('map', '../assets/level1map.json', null, Phaser.Tilemap.TILED_JSON);
+        this.game.load.json('level1', '../assets/level1.json');
 
         // this.game.add.text(this.game.world.centerX - 300, 0, 'text', '');
     }
 
     create() {
-        // ...
-
         //const image = this.game.add.image('loading', '../assets/loading.png');
         this.game.add.image(this.game.world.centerX / 2, this.game.world.centerX / 2, 'loading');
 
