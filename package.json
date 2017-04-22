@@ -7,7 +7,7 @@
   "scripts": {
     "dev": "webpack",
     "deploy": "webpack --config webpack.production.config.js",
-    "test": "eslint ./src/**/**.js"
+    "test": "eslint ./game/**/**.js"
   },
   "license": "MIT",
   "devDependencies": {
@@ -21,6 +21,7 @@
     "eslint-config-standard": "^7.0.1",
     "eslint-plugin-promise": "^3.4.0",
     "eslint-plugin-standard": "^2.0.1",
+    "eslint-config-novoda": "^1.0.0",
     "expose-loader": "^0.7.1",
     "webpack": "^2.2.0"
   },
