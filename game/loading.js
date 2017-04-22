@@ -13,7 +13,6 @@ export default class extends Phaser.State {
         this.game.load.image('tileset', '../assets/tileset.png');
 
         this.game.load.spritesheet('box', '../assets/box.png', 64, 64);
-
     }
 
     create() {

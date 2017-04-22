@@ -32,7 +32,7 @@ export default class extends Phaser.State {
         // TODO
         this.map = this.game.add.tilemap('map');
         this.map.addTilesetImage('tileset');
-        this.map.setCollisionBetween(1, 3);
+        this.map.setCollisionBetween(1, 4); // 1: wall, 2: spikes, 3: coin, 4: exit
 
         this.layer = this.map.createLayer('bounds');
         this.layer.resizeWorld();
@@ -50,7 +50,9 @@ export default class extends Phaser.State {
 
         this.game.physics.arcade.enable(this.box);
 
-        this.box.body.friction.set(0.8);
+        this.box.checkWorldBounds = true;
+        this.box.events.onOutOfBounds.add(this.handleOutOfBounds, this);
+
         this.box.body.gravity.y = GRAVITY;
 
         this.cameraDebugger.follow(this.box);
@@ -97,11 +99,14 @@ export default class extends Phaser.State {
         }
     }
 
+    handleOutOfBounds() {
+        this.state.start('GameOver');
+    }
+
     jump() {
         if (!this.box.body.blocked.down) {
             return;
         }
-
         this.box.body.velocity.y -= VERTICAL_VELOCITY;
         this.boxState = 'jump';
     }
