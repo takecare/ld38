@@ -51,20 +51,15 @@ export default class extends Phaser.State {
         this.map.setCollisionBetween(0, 13);
 
         this.boundsLayer = this.map.createLayer('bounds');
-        this.coinsLayer = this.map.createLayer('coins');
+        this.scaleUpLayer = this.map.createLayer('scaleup');
+        this.scaleDownLayer = this.map.createLayer('scaledown');
         this.spikesLayer = this.map.createLayer('spikes');
 
-        this.map.setTileIndexCallback([15], this.coinHit, this, this.coinsLayer);
+        this.map.setTileIndexCallback([15], this.scaleDownHit, this, this.scaleDownLayer);
+        //this.map.setTileIndexCallback([15], this.scaleUpHit, this, this.scaleUpLayer);
 
         this.boundsLayer.resizeWorld();
     }
-
-    //
-    coinHit() {
-        console.log('coin hit');
-    }
-
-    //
 
     createPlayer() {
         this.box = this.game.add.sprite(
@@ -89,7 +84,11 @@ export default class extends Phaser.State {
         this.box.body.gravity.y = GRAVITY;
         this.box.body.maxVelocity.y = 500;
 
-        this.scalePlayer(this.data.scale);
+        const safeWidth = this.box.body.width - BOUNDING_BOX_MARGIN;
+        this.box.body.setSize(safeWidth, this.box.body.height, BOUNDING_BOX_MARGIN / 2);
+
+        this.playerScale = this.data.scale;
+        this.scalePlayer(this.playerScale);
 
         this.box.x -= this.box.width + this.map.tileWidth;
         this.box.y -= this.box.height + this.map.tileHeight;
@@ -99,7 +98,9 @@ export default class extends Phaser.State {
         this.cameraDebugger.update();
 
         this.game.physics.arcade.collide(this.box, this.boundsLayer);
-        this.game.physics.arcade.collide(this.box, this.coinsLayer);
+        this.game.physics.arcade.collide(this.box, this.scaleDownLayer);
+        this.game.physics.arcade.collide(this.box, this.scaleUpLayer);
+        this.game.physics.arcade.collide(this.box, this.spikesLayer);
 
         this.box.body.velocity.x = 0;
 
@@ -135,6 +136,14 @@ export default class extends Phaser.State {
             this.jump();
         }
 
+        if (this.game.input.keyboard.isDown(Phaser.Keyboard.K)) {
+            this.playerScale -= 1;
+            this.box.scale.set(this.playerScale);
+        } else if (this.game.input.keyboard.isDown(Phaser.Keyboard.L)) {
+            this.playerScale += 1;
+            this.box.scale.set(this.playerScale);
+        }
+
         if (this.input.keyboard.isDown(Phaser.KeyCode.A)) {
             this.box.body.velocity.x -= HORIZONTAL_VELOCITY;
             this.box.animations.play('walk-left');
@@ -162,10 +171,36 @@ export default class extends Phaser.State {
         this.boxState = 'jump';
     }
 
+    scaleDownHit(sprite, tile) {
+        tile.alpha = 0.0;
+
+        // tile.layer
+        // tile.properties (interesting)
+        // tile.width (px)
+        // tile.height (px)
+        // tile.worldX (px)
+        // tile.worldY (px)
+        // tile.x
+        // tile.y
+
+        //this.map.fill(index, x, y, width, height, layer)
+        this.map.removeTile(tile.x, tile.y, this.scaleDownLayer);
+
+        this.playerScale -= 1;
+        this.box.scale.set(this.playerScale);
+
+        this.scaleDownLayer.dirty = true;
+        return false;
+    }
+
+    scaleUpHit(sprite, tile) {
+        // TODO
+        this.playerScale += 1;
+        this.box.scale.set(this.playerScale);
+    }
+
     scalePlayer(factor) {
         this.box.scale.set(factor);
-        const safeWidth = this.box.body.width - BOUNDING_BOX_MARGIN;
-        this.box.body.setSize(safeWidth, this.box.body.height, BOUNDING_BOX_MARGIN / 2);
     }
 
 }
