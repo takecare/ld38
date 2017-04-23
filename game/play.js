@@ -48,14 +48,15 @@ export default class extends Phaser.State {
         this.map.addTilesetImage('coin');
         this.map.addTilesetImage('spikes');
 
-        this.map.setCollisionBetween(0, 13);
+        this.map.setCollisionBetween(0, 15);
 
+        this.bg = this.map.createLayer('bg');
         this.boundsLayer = this.map.createLayer('bounds');
         this.scaleUpLayer = this.map.createLayer('scaleup');
         this.scaleDownLayer = this.map.createLayer('scaledown');
         this.spikesLayer = this.map.createLayer('spikes');
 
-        this.map.setTileIndexCallback([15], this.scaleDownHit, this, this.scaleDownLayer);
+        this.map.setTileIndexCallback([19], this.scaleDownHit, this, this.scaleDownLayer);
         //this.map.setTileIndexCallback([15], this.scaleUpHit, this, this.scaleUpLayer);
 
         this.boundsLayer.resizeWorld();
@@ -71,7 +72,8 @@ export default class extends Phaser.State {
         // TODO animations
         this.box.animations.add('walk-left', [0, 1, 2, 3], 15, true);
         this.box.animations.add('walk-right', [4, 5, 6, 7], 15, true);
-        this.box.animations.add('jump', [8, 9], 10);
+        this.box.animations.add('jump-left', [9], 1);
+        this.box.animations.add('jump-right', [8], 1);
         this.box.animations.add('idle', [0], 5);
 
         this.box.anchor.set(0.5);
@@ -98,6 +100,7 @@ export default class extends Phaser.State {
         this.cameraDebugger.update();
 
         this.game.physics.arcade.collide(this.box, this.boundsLayer);
+        this.game.physics.arcade.collide(this.box, this.bg);
         this.game.physics.arcade.collide(this.box, this.scaleDownLayer);
         this.game.physics.arcade.collide(this.box, this.scaleUpLayer);
         this.game.physics.arcade.collide(this.box, this.spikesLayer);
@@ -106,29 +109,24 @@ export default class extends Phaser.State {
 
         this.handleInput();
 
-        if (this.box.body.velocity.x === 0) {
-            this.boxState = 'idle';
+        if (this.box.body.velocity.x === 0 && this.box.body.velocity.y === 0) {
             this.box.animations.stop()
-            this.box.animations.play('idle');
         }
     }
 
     render() {
+        if (this.game.input.keyboard.isDown(Phaser.Keyboard.J)) {
+            this.game.debug.body(this.box);
+            this.game.debug.bodyInfo(this.box, 10, 10);
 
-        // game.time.msMax = he maximum amount of time the game has taken between consecutive frames.
-        // game.time.msMin = he minimum amount of time the game has taken between consecutive frames.
-        // game.time.now = An increasing value representing cumulative milliseconds since an undisclosed epoch.
-        // game.time.prevTime = The now when the previous update occurred.
-        // game.time.time = The Date.now() value when the time was last updated.
+            this.boundsLayer.debug = true;
 
-        this.game.debug.body(this.box);
-        this.game.debug.bodyInfo(this.box, 10, 10);
-
-        this.boundsLayer.debug = true;
-
-        const fps = 'fps: ' + this.game.time.fps;
-        const time = 'time: ' + this.game.time.now;
-        this.game.debug.text(fps + ' ' + time, 10, this.game.height - 10, '#ff0000');
+            const fps = 'fps: ' + this.game.time.fps;
+            const time = 'time: ' + this.game.time.now;
+            this.game.debug.text(fps + ' ' + time, 10, this.game.height - 10, '#ff0000');
+        } else {
+            this.boundsLayer.debug = false;
+        }
     }
 
     handleInput() {
@@ -146,11 +144,18 @@ export default class extends Phaser.State {
 
         if (this.input.keyboard.isDown(Phaser.KeyCode.A)) {
             this.box.body.velocity.x -= HORIZONTAL_VELOCITY;
-            this.box.animations.play('walk-left');
+
+            if (this.box.body.velocity.y === 0) {
+                this.box.animations.play('walk-left');
+            }
+
             this.boxState = 'left';
         } else if (this.input.keyboard.isDown(Phaser.KeyCode.D)) {
             this.box.body.velocity.x += HORIZONTAL_VELOCITY;
-            this.box.animations.play('walk-right');
+
+            if (this.box.body.velocity.y === 0) {
+                this.box.animations.play('walk-right');
+            }
             this.boxState = 'right';
         }
     }
@@ -167,23 +172,18 @@ export default class extends Phaser.State {
 
         this.box.body.velocity.y -= VERTICAL_VELOCITY;
 
-        this.box.animations.play('jump');
+        if (this.boxState == 'left') {
+            this.box.animations.play('jump-left');
+        } else {
+            this.box.animations.play('jump-right');
+        }
+
         this.boxState = 'jump';
     }
 
     scaleDownHit(sprite, tile) {
         tile.alpha = 0.0;
 
-        // tile.layer
-        // tile.properties (interesting)
-        // tile.width (px)
-        // tile.height (px)
-        // tile.worldX (px)
-        // tile.worldY (px)
-        // tile.x
-        // tile.y
-
-        //this.map.fill(index, x, y, width, height, layer)
         this.map.removeTile(tile.x, tile.y, this.scaleDownLayer);
 
         this.playerScale -= 1;
