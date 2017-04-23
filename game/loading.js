@@ -10,7 +10,6 @@ export default class extends Phaser.State {
         this.stage.backgroundColor = '#ccc';
         this.game.load.onFileComplete.add(this.loadedFile, this);
         this.game.load.onLoadComplete.add(this.finishedLoading, this);
-
     }
 
     preload() {

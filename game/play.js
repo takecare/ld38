@@ -34,7 +34,6 @@ export default class extends Phaser.State {
         this.cameraDebugger.bindTo(this);
 
         this.game.physics.startSystem(Phaser.Physics.ARCADE);
-
         this.game.physics.arcade.gravity.y = 300;
 
         this.createLevel();
@@ -49,17 +48,13 @@ export default class extends Phaser.State {
         this.map.addTilesetImage('coin');
         this.map.addTilesetImage('spikes');
 
+        this.map.setCollisionBetween(1, 4);
+
         this.boundsLayer = this.map.createLayer('bounds');
         this.coinsLayer = this.map.createLayer('coins');
         this.spikesLayer = this.map.createLayer('spikes');
 
-        this.game.physics.arcade.enable(this.boundsLayer);
-
-        this.map.setCollisionBetween(1, 12);
-
         this.boundsLayer.resizeWorld();
-
-        this.game.physics.arcade.enable(this.boundsLayer);
     }
 
     createPlayer() {
