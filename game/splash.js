@@ -1,6 +1,6 @@
 import Phaser from 'phaser-ce';
 
-const SPLASH_TIMEOUT_MILLIS = 0;
+const SPLASH_TIMEOUT_MILLIS = 3000;
 
 export default class extends Phaser.State {
 
@@ -10,7 +10,7 @@ export default class extends Phaser.State {
     }
 
     init() {
-        this.stage.backgroundColor = '#ffffffff';
+        this.stage.backgroundColor = '#cc';
         this.game.load.onFileComplete.add(this.loadedFile, this);
         this.game.load.onLoadComplete.add(this.moveToMenu, this);
     }
@@ -26,15 +26,11 @@ export default class extends Phaser.State {
 
         this.game.load.tilemap('levelmap', '../assets/level1map.json', null, Phaser.Tilemap.TILED_JSON);
         this.game.load.json('leveldata', '../assets/level1.json');
-
-        // this.game.add.text(this.game.world.centerX - 300, 0, 'text', '');
     }
 
     create() {
         const image = this.game.add.image(this.game.world.centerX / 2, this.game.world.centerX / 2, 'splash');
         image.anchor.set(0.5);
-
-        // TODO fix position
 
         this.event = this.game.time.events.add(SPLASH_TIMEOUT_MILLIS, this.splashTimeOut, this);
     }
