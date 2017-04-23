@@ -18,6 +18,8 @@ export default class extends Phaser.State {
     init(level) {
         this.stage.backgroundColor = '#ccc';
         this.level = level;
+
+        this.game.time.advancedTiming = true;
     }
 
     preload() {
@@ -54,10 +56,10 @@ export default class extends Phaser.State {
         );
 
         // TODO animations
-        this.box.animations.add('walk-left', [1, 2, 3], 10, true);
-        this.box.animations.add('walk-right', [1, 2, 3], 10, true);
-        this.box.animations.add('jump', [2, 3], 10);
-        this.box.animations.add('idle', [1, 2, 3], 5);
+        this.box.animations.add('walk-left', [0, 1, 2, 3], 15, true);
+        this.box.animations.add('walk-right', [4, 5, 6, 7], 15, true);
+        this.box.animations.add('jump', [8, 9], 10);
+        this.box.animations.add('idle', [0], 5);
 
         this.box.anchor.set(0.5);
         this.game.physics.startSystem(Phaser.Physics.ARCADE);
@@ -97,20 +99,30 @@ export default class extends Phaser.State {
     }
 
     render() {
-        this.game.debug.body(this.box);
+
+        // game.time.msMax = he maximum amount of time the game has taken between consecutive frames.
+        // game.time.msMin = he minimum amount of time the game has taken between consecutive frames.
+        // game.time.now = An increasing value representing cumulative milliseconds since an undisclosed epoch.
+        // game.time.prevTime = The now when the previous update occurred.
+        // game.time.time = The Date.now() value when the time was last updated.
+
+        //this.game.debug.body(this.box);
         this.game.debug.bodyInfo(this.box, 10, 10);
+        const fps = 'fps: ' + this.game.time.fps;
+        const time = 'time: ' + this.game.time.now;
+        this.game.debug.text(fps + ' ' + time, 10, this.game.height - 10, '#ff0000');
     }
 
     handleInput() {
-        if (this.input.keyboard.isDown(Phaser.Keyboard.W)) {
+        if (this.input.keyboard.isDown(Phaser.KeyCode.W)) {
             this.jump();
         }
 
-        if (this.input.keyboard.isDown(Phaser.Keyboard.A)) {
+        if (this.input.keyboard.isDown(Phaser.KeyCode.A)) {
             this.box.body.velocity.x -= HORIZONTAL_VELOCITY;
             this.box.animations.play('walk-left');
             this.boxState = 'left';
-        } else if (this.input.keyboard.isDown(Phaser.Keyboard.D)) {
+        } else if (this.input.keyboard.isDown(Phaser.KeyCode.D)) {
             this.box.body.velocity.x += HORIZONTAL_VELOCITY;
             this.box.animations.play('walk-right');
             this.boxState = 'right';
@@ -125,7 +137,9 @@ export default class extends Phaser.State {
         if (!this.box.body.blocked.down) {
             return;
         }
+        
         this.box.body.velocity.y -= VERTICAL_VELOCITY;
+
         this.box.animations.play('jump');
         this.boxState = 'jump';
     }
