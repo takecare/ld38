@@ -3,7 +3,7 @@ import Phaser from 'phaser-ce';
 import CameraDebugger from './cameradebugger';
 
 const HORIZONTAL_VELOCITY = 250;
-const VERTICAL_VELOCITY = 600;
+const VERTICAL_VELOCITY = 1800;
 const GRAVITY = 1000;
 
 const BOUNDING_BOX_MARGIN = 6;
@@ -15,6 +15,7 @@ export default class extends Phaser.State {
     constructor() {
         super();
         this.boxState = 'idle';
+        this.jumpVelocity = VERTICAL_VELOCITY;
     }
 
     init(level) {
@@ -50,7 +51,7 @@ export default class extends Phaser.State {
 
         this.map.setCollisionBetween(0, 15);
 
-        this.bg = this.map.createLayer('bg');
+        this.backgroundLayer = this.map.createLayer('bg');
         this.boundsLayer = this.map.createLayer('bounds');
         this.scaleUpLayer = this.map.createLayer('scaleup');
         this.scaleDownLayer = this.map.createLayer('scaledown');
@@ -84,13 +85,14 @@ export default class extends Phaser.State {
         this.box.events.onOutOfBounds.add(this.handleOutOfBounds, this);
 
         this.box.body.gravity.y = GRAVITY;
-        this.box.body.maxVelocity.y = 500;
+        this.box.body.maxVelocity.y = 1500;
 
         const safeWidth = this.box.body.width - BOUNDING_BOX_MARGIN;
         this.box.body.setSize(safeWidth, this.box.body.height, BOUNDING_BOX_MARGIN / 2);
 
         this.playerScale = this.data.scale;
         this.scalePlayer(this.playerScale);
+        this.updateJumpVelocity();
 
         this.box.x -= this.box.width + this.map.tileWidth;
         this.box.y -= this.box.height + this.map.tileHeight;
@@ -100,7 +102,7 @@ export default class extends Phaser.State {
         this.cameraDebugger.update();
 
         this.game.physics.arcade.collide(this.box, this.boundsLayer);
-        this.game.physics.arcade.collide(this.box, this.bg);
+        this.game.physics.arcade.collide(this.box, this.backgroundLayer);
         this.game.physics.arcade.collide(this.box, this.scaleDownLayer);
         this.game.physics.arcade.collide(this.box, this.scaleUpLayer);
         this.game.physics.arcade.collide(this.box, this.spikesLayer);
@@ -170,7 +172,7 @@ export default class extends Phaser.State {
             return;
         }
 
-        this.box.body.velocity.y -= VERTICAL_VELOCITY;
+        this.box.body.velocity.y -= this.jumpVelocity;
 
         if (this.boxState == 'left') {
             this.box.animations.play('jump-left');
@@ -181,12 +183,17 @@ export default class extends Phaser.State {
         this.boxState = 'jump';
     }
 
+    updateJumpVelocity() {
+        this.jumpVelocity = VERTICAL_VELOCITY + VERTICAL_VELOCITY * (this.playerScale * 0.3)
+    }
+
     scaleDownHit(sprite, tile) {
         tile.alpha = 0.0;
 
         this.map.removeTile(tile.x, tile.y, this.scaleDownLayer);
 
         this.playerScale -= 1;
+        this.updateJumpVelocity();
         this.box.scale.set(this.playerScale);
 
         this.scaleDownLayer.dirty = true;
