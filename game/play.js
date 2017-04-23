@@ -54,8 +54,17 @@ export default class extends Phaser.State {
         this.coinsLayer = this.map.createLayer('coins');
         this.spikesLayer = this.map.createLayer('spikes');
 
+        this.map.setTileIndexCallback([15], this.coinHit, this, this.coinsLayer);
+
         this.boundsLayer.resizeWorld();
     }
+
+    //
+    coinHit() {
+        console.log('coin hit');
+    }
+
+    //
 
     createPlayer() {
         this.box = this.game.add.sprite(
@@ -89,9 +98,8 @@ export default class extends Phaser.State {
     update() {
         this.cameraDebugger.update();
 
-        this.game.physics.arcade.collide(this.box, this.boundsLayer, (sprite, group) => {
-            // maybe useful to find out collision data
-        });
+        this.game.physics.arcade.collide(this.box, this.boundsLayer);
+        this.game.physics.arcade.collide(this.box, this.coinsLayer);
 
         this.box.body.velocity.x = 0;
 
