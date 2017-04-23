@@ -10,6 +10,8 @@ const BOUNDING_BOX_MARGIN = 6;
 
 export default class extends Phaser.State {
 
+    // TODO @RUI scale jump height along with player size
+
     constructor() {
         super();
         this.boxState = 'idle';
@@ -23,13 +25,15 @@ export default class extends Phaser.State {
     }
 
     preload() {
-        this.data = this.game.cache.getJSON('level1');
+        this.data = this.game.cache.getJSON('leveldata');
     }
 
     create() {
 
         this.cameraDebugger = new CameraDebugger();
         this.cameraDebugger.bindTo(this);
+
+        this.game.physics.startSystem(Phaser.Physics.ARCADE);
 
         this.game.physics.arcade.gravity.y = 300;
 
@@ -40,12 +44,22 @@ export default class extends Phaser.State {
     }
 
     createLevel() {
-        this.map = this.game.add.tilemap('map');
-        this.map.addTilesetImage('tileset');
-        this.map.setCollisionBetween(1, 4); // 1: wall, 2: spikes, 3: coin, 4: exit
+        this.map = this.game.add.tilemap('levelmap');
+        this.map.addTilesetImage('wall');
+        this.map.addTilesetImage('coin');
+        this.map.addTilesetImage('spikes');
 
-        this.layer = this.map.createLayer('bounds');
-        this.layer.resizeWorld();
+        this.boundsLayer = this.map.createLayer('bounds');
+        this.coinsLayer = this.map.createLayer('coins');
+        this.spikesLayer = this.map.createLayer('spikes');
+
+        this.game.physics.arcade.enable(this.boundsLayer);
+
+        this.map.setCollisionBetween(1, 12);
+
+        this.boundsLayer.resizeWorld();
+
+        this.game.physics.arcade.enable(this.boundsLayer);
     }
 
     createPlayer() {
@@ -62,9 +76,12 @@ export default class extends Phaser.State {
         this.box.animations.add('idle', [0], 5);
 
         this.box.anchor.set(0.5);
-        this.game.physics.startSystem(Phaser.Physics.ARCADE);
 
         this.game.physics.arcade.enable(this.box);
+
+        //
+        this.box.body.collideWorldBounds = true;
+        //
 
         this.box.checkWorldBounds = true;
         this.box.events.onOutOfBounds.add(this.handleOutOfBounds, this);
@@ -74,12 +91,11 @@ export default class extends Phaser.State {
 
         this.scalePlayer(this.data.scale);
 
-        this.box.x -= this.box.width / 2 + this.map.tileWidth;
-        this.box.y -= this.box.height / 2 + this.map.tileHeight;
+        this.box.x -= this.box.width + this.map.tileWidth;
+        this.box.y -= this.box.height + this.map.tileHeight;
     }
 
     update() {
-
         this.cameraDebugger.update();
 
         this.game.physics.arcade.collide(this.box, this.layer, (sprite, group) => {
@@ -95,7 +111,6 @@ export default class extends Phaser.State {
             this.box.animations.stop()
             this.box.animations.play('idle');
         }
-
     }
 
     render() {
@@ -106,8 +121,11 @@ export default class extends Phaser.State {
         // game.time.prevTime = The now when the previous update occurred.
         // game.time.time = The Date.now() value when the time was last updated.
 
-        //this.game.debug.body(this.box);
+        this.game.debug.body(this.box);
         this.game.debug.bodyInfo(this.box, 10, 10);
+
+        this.boundsLayer.debug = true;
+
         const fps = 'fps: ' + this.game.time.fps;
         const time = 'time: ' + this.game.time.now;
         this.game.debug.text(fps + ' ' + time, 10, this.game.height - 10, '#ff0000');
@@ -130,14 +148,17 @@ export default class extends Phaser.State {
     }
 
     handleOutOfBounds() {
-        this.state.start('GameOver');
+        //this.state.start('GameOver');
+        // TODO move to next level
+        this.game.currentLevel += 1;
+        this.state.start('Loading', true, false, {});
     }
 
     jump() {
         if (!this.box.body.blocked.down) {
             return;
         }
-        
+
         this.box.body.velocity.y -= VERTICAL_VELOCITY;
 
         this.box.animations.play('jump');

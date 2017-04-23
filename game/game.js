@@ -17,7 +17,9 @@ export default class Game extends Phaser.Game {
         this.state.add('Play', Play, false);
         this.state.add('GameOver', GameOver, false);
 
-        this.state.start('Loading');
+        this.currentLevel = 1;
+
+        this.state.start('Splash');
     }
 
 }
