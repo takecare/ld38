@@ -48,7 +48,7 @@ export default class extends Phaser.State {
         this.map.addTilesetImage('coin');
         this.map.addTilesetImage('spikes');
 
-        this.map.setCollisionBetween(1, 4);
+        this.map.setCollisionBetween(0, 13);
 
         this.boundsLayer = this.map.createLayer('bounds');
         this.coinsLayer = this.map.createLayer('coins');
