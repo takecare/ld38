@@ -74,10 +74,6 @@ export default class extends Phaser.State {
 
         this.game.physics.arcade.enable(this.box);
 
-        //
-        this.box.body.collideWorldBounds = true;
-        //
-
         this.box.checkWorldBounds = true;
         this.box.events.onOutOfBounds.add(this.handleOutOfBounds, this);
 
@@ -93,7 +89,7 @@ export default class extends Phaser.State {
     update() {
         this.cameraDebugger.update();
 
-        this.game.physics.arcade.collide(this.box, this.layer, (sprite, group) => {
+        this.game.physics.arcade.collide(this.box, this.boundsLayer, (sprite, group) => {
             // maybe useful to find out collision data
         });
 
@@ -143,8 +139,6 @@ export default class extends Phaser.State {
     }
 
     handleOutOfBounds() {
-        //this.state.start('GameOver');
-        // TODO move to next level
         this.game.currentLevel += 1;
         this.state.start('Loading', true, false, {});
     }
